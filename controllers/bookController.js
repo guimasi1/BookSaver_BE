@@ -84,3 +84,31 @@ exports.removeBookFromFavourites = async (req, res, next) => {
     errorResponse(res, 500, "Failed to remove book from favourites");
   }
 };
+
+exports.setBookAsRead = async (req, res, next) => {
+  try {
+    await User.findByIdAndUpdate(req.params.userId, {
+      $push: { readBooks: req.params.bookId },
+    });
+    res.status(200).json({
+      status: "success",
+      message: "Book set successfully as read",
+    });
+  } catch (err) {
+    errorResponse(res, 500, "Failed to set book as read");
+  }
+};
+
+exports.setBookAsNotRead = async (req, res, next) => {
+  try {
+    await User.findByIdAndUpdate(req.params.userId, {
+      $pull: { readBooks: req.params.bookId },
+    });
+    res.status(200).json({
+      status: "success",
+      message: "Book set successfully as not read",
+    });
+  } catch (err) {
+    errorResponse(res, 500, "Failed to set book as not read");
+  }
+};

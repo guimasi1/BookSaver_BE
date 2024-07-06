@@ -15,4 +15,7 @@ router
   .route("/remove/:bookId/user/:userId")
   .post(bookController.removeBookFromFavourites);
 
+router.route("/read/:bookId/:userId").post(bookController.setBookAsRead);
+router.route("/not-read/:bookId/:userId").post(bookController.setBookAsNotRead);
+
 module.exports = router;
