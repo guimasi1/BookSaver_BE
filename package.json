@@ -1,0 +1,23 @@
+{
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-validator": "^7.0.1",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.4.0",
+    "mysql2": "^3.9.7",
+    "nodemon": "^3.1.0",
+    "socket.io": "^4.7.5"
+  },
+  "name": "book_saver",
+  "version": "1.0.0",
+  "description": "An app for saving favourite read books.",
+  "main": "app.js",
+  "scripts": {
+    "test": "mocha",
+    "start": "nodemon app.js"
+  },
+  "author": "Guido Masi",
+  "license": "ISC"
+}
