@@ -7,4 +7,6 @@ router
   .get(reviewController.getReviewsByBook)
   .post(reviewController.createReview);
 
+router.route("/book/:bookId").get(reviewController.getReviewsByBook);
+
 module.exports = router;

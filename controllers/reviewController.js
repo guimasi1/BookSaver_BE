@@ -31,6 +31,12 @@ exports.createReview = async (req, res, next) => {
 
 exports.getReviewsByBook = async (req, res, next) => {
   try {
+    const reviews = await Review.find({ bookId: req.params.bookId });
+
+    res.status(200).json({
+      status: "success",
+      data: { reviews },
+    });
   } catch (err) {
     errorResponse(res, 500, "Failed to get the reviews");
   }

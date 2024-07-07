@@ -19,3 +19,14 @@ exports.getAllUsers = async (req, res, next) => {
     return errorResponse(res, 400, "Failed to get all users.");
   }
 };
+
+exports.deleteUser = async (req, res, next) => {
+  try {
+    await User.findByIdAndDelete(req.params.userId);
+    res.status(204).json({
+      status: "success",
+    });
+  } catch (err) {
+    errorResponse(res, 500, "Failed to delete user");
+  }
+};
