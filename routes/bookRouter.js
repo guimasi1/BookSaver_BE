@@ -1,11 +1,13 @@
 const express = require("express");
 const router = express.Router();
 const bookController = require("../controllers/bookController");
+const validate = require("../validation/validate");
+const bookRegistrationSchema = require("../validation/bookCreationSchema");
 
 router
   .route("/")
   .get(bookController.getAllBooks)
-  .post(bookController.createBook);
+  .post(bookRegistrationSchema, validate, bookController.createBook);
 
 router
   .route("/add/:bookId/user/:userId")

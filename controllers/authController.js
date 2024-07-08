@@ -2,6 +2,7 @@ const User = require("../models/userModel");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const errorResponse = require("../utils/errorResponse");
+const logger = require("../utils/logger");
 
 const createToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -11,19 +12,44 @@ const createToken = (id) => {
 
 exports.signUp = async (req, res, next) => {
   try {
-    const newUser = await User.create({
-      email: req.body.email,
-      password: req.body.password,
+    const userWithSameEmail = await User.findOne({ email: req.body.email });
+    if (userWithSameEmail)
+      throw new Error(
+        `There's already an user with this email: ` + req.body.email
+      );
+    const userWithSameUsername = await User.findOne({
       username: req.body.username,
-      profilePictureUrl: req.body.profilePictureUrl,
-      firstname: req.body.firstname,
-      lastname: req.body.lastname,
     });
+    if (userWithSameUsername)
+      throw new Error(
+        `There's already an user with this username: ` + req.body.username
+      );
+
+    const {
+      email,
+      password,
+      username,
+      profilePictureUrl,
+      firstname,
+      lastname,
+    } = req.body;
+
+    const newUser = await User.create({
+      email,
+      password,
+      username,
+      profilePictureUrl,
+      firstname,
+      lastname,
+    });
+
+    logger.info(`User with username ${req.body.username} created`);
     return res.status(200).json({
       userId: newUser._id,
     });
   } catch (err) {
-    return errorResponse(res, 400, "Failed to register the new user.");
+    logger.error(err.message);
+    return errorResponse(res, 400, "Failed to register the new user. " + err);
   }
 };
 
@@ -38,7 +64,7 @@ exports.login = async (req, res, next) => {
   }
 
   try {
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email: req.body.email });
     const correct = await bcrypt.compare(password, user.password);
     if (!user || !correct) {
       return res.status(401).json({
@@ -46,14 +72,17 @@ exports.login = async (req, res, next) => {
         message: "Incorrect email or password",
       });
     }
-    const token = createToken(user._id);
 
+    const token = createToken(user._id);
+    logger.info("Token created");
+    logger.info("Logged in");
     return res.status(200).json({
       status: "Success",
       message: "Logged in successfully",
       token,
     });
   } catch (err) {
+    logger.error(err.message);
     return errorResponse(
       res,
       400,
