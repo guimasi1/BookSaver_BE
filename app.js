@@ -1,8 +1,12 @@
 require("dotenv").config({ path: "./config.env" });
 
+const DB = process.env.DATABASE;
+const port = process.env.PORT;
+
 const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
+const helmet = require("helmet");
 const cors = require("./utils/cors");
 const bookRouter = require("./routes/bookRouter");
 const userRouter = require("./routes/userRouter");
@@ -13,16 +17,13 @@ const reviewRouter = require("./routes/reviewRouter");
 const app = express();
 
 app.use(cors);
+app.use(helmet());
 app.use(bodyParser.json());
-
 app.use("/auth", authRouter);
 app.use("/books", bookRouter);
 app.use("/users", userRouter);
 app.use("/authors", authorRouter);
 app.use("/reviews", reviewRouter);
-
-const DB = process.env.DATABASE;
-const port = process.env.PORT;
 
 mongoose
   .connect(DB)

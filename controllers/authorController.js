@@ -1,5 +1,6 @@
 const errorResponse = require("../utils/errorResponse");
 const Author = require("../models/authorModel");
+const logger = require("../utils/logger");
 
 exports.createAuthor = async (req, res, next) => {
   try {
@@ -7,6 +8,7 @@ exports.createAuthor = async (req, res, next) => {
       firstname: req.body.firstname,
       lastname: req.body.lastname,
     });
+    logger.info("author created");
 
     res.status(201).json({
       status: "success",
@@ -26,12 +28,15 @@ exports.getAuthors = async (req, res, next) => {
       .limit(limit * 1)
       .skip((page - 1) * limit)
       .sort(sort);
+    logger.info("DB read");
 
     res.status(200).json({
       status: "success",
       data: { authors },
     });
   } catch (err) {
+    logger.error(err.message);
+
     errorResponse(res, 500, "Failed to get authors");
   }
 };
