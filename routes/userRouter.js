@@ -7,6 +7,10 @@ router.route("/").get(userController.getAllUsers);
 
 router
   .route("/:userId")
-  .delete(authController.protect, userController.deleteUser);
+  .delete(
+    authController.protect,
+    authController.restrictTo("ADMIN"),
+    userController.deleteUser
+  );
 
 module.exports = router;
