@@ -265,16 +265,19 @@ exports.setBookAsNotRead = async (req, res, next) => {
       logger.warn("User not found");
       throw new AppError("User not found");
     }
-    let books;
-    if (user.readBooks.includes(req.params.bookId)) {
-      books = user.readBooks.filter((book) => book._id !== req.params.bookId);
+
+    const bookId = req.params.bookId;
+
+    if (user.readBooks.includes(bookId)) {
+      user.readBooks = user.readBooks.filter(
+        (book) => !book.equals(bookId.toString())
+      );
     } else {
       throw new AppError("The book is not a read book", 404);
     }
 
-    user.readBooks = books;
     await user.save();
-    logger.info("book removed from read books");
+    logger.info("Book removed from read books");
 
     res.status(200).json({
       status: "success",
