@@ -8,6 +8,11 @@ router
   .get(reviewController.getReviewsByBook)
   .post(authController.protect, reviewController.createReview);
 
+router
+  .route("/:id")
+  .put(authController.protect, reviewController.updateReview)
+  .delete(authController.protect, reviewController.deleteReview);
+
 router.route("/book/:bookId").get(reviewController.getReviewsByBook);
 
 module.exports = router;
