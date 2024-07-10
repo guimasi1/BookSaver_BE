@@ -1,9 +1,21 @@
 const pino = require("pino");
-
-const logger = pino({
-  transport: {
-    target: "pino-pretty",
-  },
+const transport = pino.transport({
+  targets: [
+    {
+      target: "pino/file",
+      options: { destination: `${__dirname}/app.log` },
+    },
+    {
+      target: "pino-pretty",
+    },
+  ],
 });
 
-module.exports = logger;
+module.exports = pino(
+  {
+    level: process.env.PINO_LOG_LEVEL || "info",
+    timestamp: pino.stdTimeFunctions.isoTime,
+    redact: ["user.firstname", "user.lastname", "user.email", "user.password"],
+  },
+  transport
+);

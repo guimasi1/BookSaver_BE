@@ -1,23 +1,48 @@
 const express = require("express");
 const router = express.Router();
 const bookController = require("../controllers/bookController");
+const authController = require("../controllers/authController");
 const validate = require("../validation/validate");
 const bookRegistrationSchema = require("../validation/bookCreationSchema");
 
 router
   .route("/")
   .get(bookController.getAllBooks)
-  .post(bookRegistrationSchema, validate, bookController.createBook);
+  .post(
+    authController.protect,
+    authController.restrictTo("ADMIN"),
+    bookRegistrationSchema,
+    validate,
+    bookController.createBook
+  );
 
 router
-  .route("/add/:bookId/user/:userId")
-  .post(bookController.addBookToFavourites);
+  .route("/:id")
+  .get(bookController.getSingleBook)
+  .put(
+    authController.protect,
+    authController.restrictTo("ADMIN"),
+    bookController.updateBook
+  )
+  .delete(
+    authController.protect,
+    authController.restrictTo("ADMIN"),
+    bookController.deleteBook
+  );
 
 router
-  .route("/remove/:bookId/user/:userId")
-  .post(bookController.removeBookFromFavourites);
+  .route("/add/:bookId")
+  .post(authController.protect, bookController.addBookToFavourites);
 
-router.route("/read/:bookId/:userId").post(bookController.setBookAsRead);
-router.route("/not-read/:bookId/:userId").post(bookController.setBookAsNotRead);
+router
+  .route("/remove/:bookId")
+  .post(authController.protect, bookController.removeBookFromFavourites);
+
+router
+  .route("/read/:bookId")
+  .post(authController.protect, bookController.setBookAsRead);
+router
+  .route("/not-read/:bookId")
+  .post(authController.protect, bookController.setBookAsNotRead);
 
 module.exports = router;

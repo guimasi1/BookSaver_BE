@@ -8,7 +8,9 @@ exports.getAllUsers = async (req, res, next) => {
     const users = await User.find()
       .populate("favouriteBooks", "title description")
       .populate("readBooks", "title description")
-      .populate("reviews");
+      .populate("reviews")
+      .select("-password -role");
+
     logger.info("DB read");
 
     res.status(200).json({
