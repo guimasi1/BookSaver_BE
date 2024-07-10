@@ -45,4 +45,12 @@ router
   .route("/not-read/:bookId")
   .post(authController.protect, bookController.setBookAsNotRead);
 
+router
+  .route("/:bookId/:authorId")
+  .post(authController.protect, bookController.addBookToAuthor);
+
+router
+  .route("/:bookId/remove/:authorId")
+  .post(authController.protect, bookController.removeBookFromAuthor);
+
 module.exports = router;

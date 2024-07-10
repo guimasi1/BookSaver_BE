@@ -30,6 +30,7 @@ exports.createBook = async (req, res, next) => {
       title,
       description,
     });
+
     logger.info("Book created");
 
     const books = await Book.find();
@@ -286,5 +287,67 @@ exports.setBookAsNotRead = async (req, res, next) => {
   } catch (err) {
     logger.error(err.message);
     errorResponse(res, 500, "Failed to set book as not read. " + err.message);
+  }
+};
+
+exports.addBookToAuthor = async (req, res, next) => {
+  try {
+    const book = await Book.findById(req.params.bookId);
+    if (!book) {
+      res.status(404).json({
+        status: "failed",
+        message: "book not found",
+      });
+    }
+    const author = await Author.findByIdAndUpdate(req.params.authorId, {
+      $push: { books: book._id },
+    });
+    if (!author) {
+      res.status(404).json({
+        status: "failed",
+        message: "author not found",
+      });
+    }
+
+    logger.info("book added to author");
+
+    res.status(200).json({
+      status: "success",
+    });
+  } catch (err) {
+    errorResponse(res, 500, "Failed to add book to author. " + err.message);
+  }
+};
+
+exports.removeBookFromAuthor = async (req, res, next) => {
+  try {
+    const book = await Book.findById(req.params.bookId);
+    if (!book) {
+      res.status(404).json({
+        status: "failed",
+        message: "book not found",
+      });
+    }
+    const author = await Author.findByIdAndUpdate(req.params.authorId, {
+      $pull: { books: book._id },
+    });
+    if (!author) {
+      res.status(404).json({
+        status: "failed",
+        message: "author not found",
+      });
+    }
+
+    logger.info("book removed from author");
+
+    res.status(200).json({
+      status: "success",
+    });
+  } catch (err) {
+    errorResponse(
+      res,
+      500,
+      "Failed to remove book from author. " + err.message
+    );
   }
 };
