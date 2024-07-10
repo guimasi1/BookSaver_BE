@@ -4,3 +4,8 @@ config.env
 
 # Node.js
 node_modules/
+
+
+# Logging
+
+utils/app.log
