@@ -101,7 +101,7 @@ exports.restrictTo = (...roles) => {
     try {
       if (!roles.includes(req.user.role)) {
         logger.warn("You don't have the authorization");
-        return res.status(401).json({
+        return res.status(403).json({
           status: "failed",
           message: "You don't have the authorization",
         });

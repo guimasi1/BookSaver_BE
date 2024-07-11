@@ -1,6 +1,7 @@
 const Review = require("../models/reviewModel");
 const Book = require("../models/bookModel");
 const User = require("../models/userModel");
+const cache = require("../utils/cache");
 const errorResponse = require("../utils/errorResponse");
 const logger = require("../utils/logger");
 const AppError = require("../utils/appError");
@@ -20,6 +21,9 @@ exports.createReview = async (req, res, next) => {
       $push: { reviews: newReview },
     });
     logger.info("book updated");
+
+    const books = await Book.find();
+    cache.set("books", books);
 
     await User.findByIdAndUpdate(authorId, {
       $push: { reviews: newReview },

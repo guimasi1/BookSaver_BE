@@ -1,10 +1,12 @@
 const Book = require("../models/bookModel");
 const Author = require("../models/authorModel");
 const User = require("../models/userModel");
+const Review = require("../models/reviewModel");
 const errorResponse = require("../utils/errorResponse");
 const logger = require("../utils/logger");
 const cache = require("../utils/cache");
 const AppError = require("../utils/appError");
+const { default: mongoose } = require("mongoose");
 
 exports.createBook = async (req, res, next) => {
   try {
@@ -53,25 +55,38 @@ exports.createBook = async (req, res, next) => {
 };
 
 exports.deleteBook = async (req, res, next) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
   try {
-    const result = await Book.deleteOne({ _id: req.params.id });
+    const bookId = req.params.id;
+
+    const result = await Book.deleteOne({ _id: bookId }).session(session);
 
     if (result.deletedCount === 0) {
+      await session.abortTransaction();
+      session.endSession();
       logger.warn("book not found");
-      throw new AppError(`Book with id ${req.params.id} not found`);
+      throw new AppError(`Book with id ${bookId} not found`);
     }
 
     logger.info("book deleted");
 
+    await Review.deleteMany({ bookId }).session(session);
+
     let books = cache.get("books");
     if (books) {
-      books = books.filter((book) => book._id !== req.params.id);
+      books = books.filter((book) => book._id !== bookId);
       cache.set("books", books);
     }
     logger.info("book removed from cache");
+    await session.commitTransaction();
+    session.endSession();
 
     res.status(202).json({ status: "success" });
   } catch (err) {
+    await session.abortTransaction();
+    session.endSession();
     logger.error(err.message);
     errorResponse(res, 500, "Failed to delete book: " + err.message);
   }
