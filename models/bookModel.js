@@ -14,12 +14,17 @@ const bookSchema = new Schema({
     type: String,
     required: true,
   },
+  imageUrl: String,
   reviews: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Review",
     },
   ],
+  category: {
+    type: String,
+    enum: ["fantasy", "thriller", "self-help"],
+  },
 });
 
 module.exports = mongoose.model("Book", bookSchema);

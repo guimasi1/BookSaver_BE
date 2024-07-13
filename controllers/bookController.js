@@ -17,7 +17,7 @@ exports.createBook = async (req, res, next) => {
         message: "invalid body",
       });
     }
-    const { authorId, title, description } = req.body;
+    const { authorId, title, description, imageUrl, category } = req.body;
 
     const bookWithSameTitleAndAuthor = await Book.findOne({ authorId, title });
     if (bookWithSameTitleAndAuthor) {
@@ -31,6 +31,8 @@ exports.createBook = async (req, res, next) => {
       authorId,
       title,
       description,
+      imageUrl,
+      category,
     });
 
     logger.info("Book created");
@@ -140,11 +142,11 @@ exports.getAllBooks = async (req, res, next) => {
 
 exports.updateBook = async (req, res, next) => {
   try {
-    const { title, description, authorId } = req.body;
+    const { title, description, imageUrl, category } = req.body;
 
     const updatedBook = await Book.findByIdAndUpdate(
       req.params.id,
-      { title, description },
+      { title, description, imageUrl, category },
       { new: true, runValidators: true }
     );
 
