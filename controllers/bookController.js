@@ -97,16 +97,28 @@ exports.deleteBook = async (req, res, next) => {
 exports.getSingleBook = async (req, res, next) => {
   try {
     cache.del("books");
-    const book = await Book.findById(req.params.id);
+    const book = await Book.findById(req.params.id)
+      .populate({
+        path: "authorId",
+        select: "-books",
+      })
+      .populate({
+        path: "reviews",
+        populate: "authorId",
+      })
+      .lean();
     if (!book) {
       logger.warn("Book not found");
       throw new AppError(`Book with id ${req.params.id} not found`, 404);
     }
-    logger.info("DB read");
 
+    book.author = book.authorId;
+    delete book.authorId;
+
+    logger.info("DB read");
     res.status(200).json({
       status: "success",
-      data: { book },
+      book,
     });
   } catch (err) {
     logger.error(err.message);
@@ -116,18 +128,26 @@ exports.getSingleBook = async (req, res, next) => {
 
 exports.getAllBooks = async (req, res, next) => {
   try {
-    if (cache.has("books")) {
-      const cachedBooks = cache.get("books");
-      logger.info("books retrieved from the cache");
+    const { title } = req.query;
+    let books;
+    if (!title) {
+      if (cache.has("books")) {
+        const cachedBooks = cache.get("books");
+        logger.info("books retrieved from the cache");
 
-      return res.status(200).json({
-        status: "success",
-        data: { books: cachedBooks },
+        return res.status(200).json({
+          status: "success",
+          data: { books: cachedBooks },
+        });
+      }
+      books = await Book.find();
+      cache.set("books", books);
+    } else {
+      books = await Book.find({
+        title: { $regex: title, $options: "i" },
       });
     }
 
-    const books = await Book.find();
-    cache.set("books", books);
     logger.info("DB Read");
 
     res.status(200).json({

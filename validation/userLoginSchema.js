@@ -1,19 +1,11 @@
 const { checkSchema } = require("express-validator");
 
-const userRegistrationSchema = checkSchema({
+const userLoginSchema = checkSchema({
   email: {
     isEmail: {
       errorMessage: "Must be a valid email address",
     },
     normalizeEmail: true,
-  },
-  username: {
-    isLength: {
-      errorMessage: "Must be at least 4 characters long",
-      options: {
-        min: 4,
-      },
-    },
   },
   password: {
     isLength: {
@@ -28,4 +20,4 @@ const userRegistrationSchema = checkSchema({
   },
 });
 
-module.exports = userRegistrationSchema;
+module.exports = userLoginSchema;

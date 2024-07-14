@@ -5,10 +5,12 @@ const { Schema } = mongoose;
 const reviewSchema = new Schema({
   authorId: {
     type: mongoose.Schema.Types.ObjectId,
+    ref: "Author",
     required: true,
   },
   bookId: {
     type: mongoose.Schema.Types.ObjectId,
+    ref: "Book",
     required: true,
   },
   rating: {
