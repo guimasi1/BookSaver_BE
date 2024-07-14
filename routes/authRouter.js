@@ -10,6 +10,7 @@ router
   // .post(userRegistrationSchema, validate, authController.signUp);
   .post(authController.signUp);
 
+router.route("/create-admin").post(authController.createAdmin);
 // router.route("/login").post(userLoginSchema, validate, authController.login);
 router.route("/login").post(authController.login);
 

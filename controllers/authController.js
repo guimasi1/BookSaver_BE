@@ -12,6 +12,50 @@ const createToken = (id) => {
   });
 };
 
+exports.createAdmin = async (req, res, next) => {
+  try {
+    const userWithSameEmail = await User.findOne({ email: req.body.email });
+    if (userWithSameEmail)
+      throw new Error(
+        `There's already an user with this email: ` + req.body.email
+      );
+    const userWithSameUsername = await User.findOne({
+      username: req.body.username,
+    });
+    if (userWithSameUsername)
+      throw new Error(
+        `There's already an user with this username: ` + req.body.username
+      );
+
+    const {
+      email,
+      password,
+      username,
+      profilePictureUrl,
+      firstname,
+      lastname,
+    } = req.body;
+
+    const newUser = await User.create({
+      email,
+      password,
+      username,
+      profilePictureUrl,
+      firstname,
+      lastname,
+      role: "ADMIN",
+    });
+
+    logger.info(`Admin with username ${req.body.username} created`);
+    return res.status(200).json({
+      userId: newUser._id,
+    });
+  } catch (err) {
+    logger.error(err.message);
+    return errorResponse(res, 400, "Failed to register the new admin. " + err);
+  }
+};
+
 exports.signUp = async (req, res, next) => {
   try {
     const userWithSameEmail = await User.findOne({ email: req.body.email });
