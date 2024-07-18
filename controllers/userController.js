@@ -11,7 +11,7 @@ exports.getAllUsers = async (req, res, next) => {
       .populate("favouriteBooks", "title description")
       .populate("readBooks", "title description")
       .populate("reviews")
-      .select("-password -role");
+      .select("-password");
 
     logger.info("DB read");
 
@@ -79,7 +79,7 @@ exports.getCurrentUser = async (req, res, next) => {
         },
       })
       .populate("favouriteBooks")
-      .select("-role -password -reviews");
+      .select("-password -reviews");
 
     if (!user) {
       logger.warn("User not found");
@@ -102,6 +102,7 @@ exports.getCurrentUser = async (req, res, next) => {
 exports.deleteUser = async (req, res, next) => {
   try {
     await User.findByIdAndDelete(req.params.userId);
+
     logger.info("user deleted");
 
     res.status(204).json({
@@ -111,5 +112,25 @@ exports.deleteUser = async (req, res, next) => {
     logger.err(err);
 
     errorResponse(res, 500, "Failed to delete user");
+  }
+};
+
+exports.deleteUserByUsername = async (req, res, next) => {
+  try {
+    const username = req.params.username;
+    const result = await User.deleteOne({ username });
+    if (result.deletedCount === 0) {
+      logger.warn("user not found");
+      return res.status(404).json({
+        status: "failed",
+        message: `user with username ${username} not found`,
+      });
+    }
+    logger.info("user deleted");
+    res.status(204).json({
+      status: "success",
+    });
+  } catch (err) {
+    errorResponse(res, 500, "failed to delete user");
   }
 };

@@ -1,4 +1,5 @@
 require("dotenv").config({ path: "./config.env" });
+require("./utils/colors");
 
 const DB = process.env.DATABASE;
 const port = process.env.PORT || 3000;
@@ -9,7 +10,6 @@ const bodyParser = require("body-parser");
 const helmet = require("helmet");
 const cors = require("./utils/cors");
 const configureRoutes = require("./routes/allRouters");
-
 const app = express();
 
 app.use(cors);

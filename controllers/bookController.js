@@ -78,7 +78,7 @@ exports.deleteBook = async (req, res, next) => {
 
     let books = cache.get("books");
     if (books) {
-      books = books.filter((book) => book._id !== bookId);
+      books = books.filter((book) => book._id.toString() !== bookId);
       cache.set("books", books);
     }
     logger.info("book removed from cache");
@@ -140,19 +140,27 @@ exports.getAllBooks = async (req, res, next) => {
           data: { books: cachedBooks },
         });
       }
-      books = await Book.find();
+      books = await Book.find().populate({
+        path: "authorId",
+        select: "-books",
+      });
+
       cache.set("books", books);
     } else {
       books = await Book.find({
         title: { $regex: title, $options: "i" },
-      });
+      }).populate({ path: "authorId", select: "-books" });
     }
 
     logger.info("DB Read");
 
     res.status(200).json({
       status: "success",
-      data: { books },
+
+      data: {
+        size: books.length,
+        books,
+      },
     });
   } catch (err) {
     logger.error(err.message);
@@ -284,11 +292,14 @@ exports.setBookAsRead = async (req, res, next) => {
 
     user.readBooks.push(book._id);
     await user.save();
+
+    const result = await Book.findById(book._id);
     logger.info("book added to read books");
 
     res.status(200).json({
       status: "success",
       message: "Book set successfully as read",
+      book: result,
     });
   } catch (err) {
     logger.error(err.message);
